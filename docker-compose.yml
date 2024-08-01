@@ -1,174 +1,18 @@
-#version: '4'
-#
-#services:
-#  get_url:
-#    image: python:3.11.6
-#    ports:
-#      - '5623:5623'
-#    volumes:
-#      - ./src/get_url:/var/project/get_url
-#    depends_on:
-#      - db
-#    command: >
-#      bash -c "set -x &&
-#      cd /var/project/get_url &&
-#      python -m venv venv &&
-#      source venv/bin/activate &&
-#      pip install poetry &&
-#      poetry install --no-root &&
-#      poetry update "
-## &&
-##      python main.py"
-#    working_dir: /var/project/get_url
+version: '4'
+
+services:
+  get_url:
+    image: get_url_image:1.0.0
+    ports:
+      - '5623:5623'
+    depends_on:
+      - db
 #    environment:
 #      - URL=https://randomuser.me/api/?results=
 #      - USER_KAFKA=aGFybWxlc3MtbGxhbWEtMTA5NTUkSWlsftAT5bb2G5AxTAXsG48EcNi8Pk20sDU
 #      - PASSWORD_KAFKA=YzI5N2JhYzQtZGJjMi00YjJmLThjOTQtMTEwNzhiZjQ3MmNm
 #      - TOPIC=test_msg
-#      - PYTHONPATH=/var/project/get_user_url
-#  db:
-#    image: postgres:16
-#    environment:
-#      - POSTGRES_USER=admin
-#      - POSTGRES_PASSWORD=password
-#      - POSTGRES_DB=de_projects
-#    ports:
-#      - '5432:5432'
-#      - '5433:5433'
-#    volumes:
-#      - db:/var/lib/postgresql/data
-#    networks:
-#      - app-network
-#  db_project:
-#    image: python:3.11.6
-#    depends_on:
-#      - db
-#    ports:
-#      - '5624:5624'
-#    volumes:
-#      - ./src/db_source:/var/project/db_source
-#    command: >
-#      bash -c "
-#      set -x &&
-#      cd /var/project/db_source &&
-#      python -m venv venv &&
-#      . venv/bin/activate &&
-#      pip install poetry &&
-#      poetry install --no-root &&
-#      poetry update &&
-#      poetry add confluent_kafka &&
-#      poetry update "
-#    #&&
-##      python main.py"
-#    working_dir: /var/project/db_source
-#    environment:
-#      - HOST=db
-#      - DB=de_projects
-#      - USER=admin
-#      - PASSWORD=password
-#      - PORT=5432
-#      - USER_KAFKA=aGFybWxlc3MtbGxhbWEtMTA5NTUkSWlsftAT5bb2G5AxTAXsG48EcNi8Pk20sDU
-#      - PASSWORD_KAFKA=YzI5N2JhYzQtZGJjMi00YjJmLThjOTQtMTEwNzhiZjQ3MmNm
-#      - TOPIC=test_msg
-#    networks:
-#      - app-network
-#  postgres_airf:
-#    image: postgres:13
-#    environment:
-#      POSTGRES_USER: airflow
-#      POSTGRES_PASSWORD: airflow
-#      POSTGRES_DB: airflow
-#    volumes:
-#      - airflow-db:/var/lib/postgresql_airf/data
-#    networks:
-#      - app-network
-#  webserver:
-#    image: apache/airflow:2.5.1
-#    depends_on:
-#      - postgres_airf
-#    environment:
-#      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-#      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airf/airflow
-#      AIRFLOW__CORE__FERNET_KEY: 'FLCvhQP9IQWtMCg6Af1ugEUOjQ5qSy0Q4yhEu1IEZ98='
-#      AIRFLOW__CORE__LOAD_EXAMPLES: 'True'
-#      AIRFLOW__WEBSERVER__WORKERS: 1
-#      #_PIP_ADDITIONAL_REQUIREMENTS: "apache-airflow[password]"
-#      AIRFLOW__WEBSERVER__AUTH_BACKEND: "airflow.contrib.auth.backends.password_auth"
-#      PYTHONPATH: "/opt/airflow/dags/"
-#    volumes:
-#      - ./dags:/opt/airflow/dags
-#      - ./logs:/opt/airflow/logs
-#      - ./plugins:/opt/airflow/plugins
-#    ports:
-#      - "8080:8080"
-#    command: >
-#      bash -c
-#      "airflow db init &&
-#      airflow users create
-#      --username admin
-#      --firstname Admin
-#      --lastname User
-#      --role Admin
-#      --email admin@example.com
-#      --password admin &&
-#      airflow webserver"
-#    networks:
-#      - app-network
-#
-#
-#  scheduler:
-#    image: apache/airflow:2.5.1
-#    depends_on:
-#      - postgres_airf
-#      - db_project
-#      - get_url
-#    environment:
-#      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-#      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airf/airflow
-#      AIRFLOW__CORE__FERNET_KEY: 'FLCvhQP9IQWtMCg6Af1ugEUOjQ5qSy0Q4yhEu1IEZ98='
-#      AIRFLOW__CORE_DAGS_FOLDER: /opt/airflow/dags
-#      PYTHONPATH: "/opt/airflow/dags/"
-#    volumes:
-#      - ./dags:/opt/airflow/dags
-#      - ./logs:/opt/airflow/logs
-#      - ./plugins:/opt/airflow/plugins
-#    command: scheduler
-#    networks:
-#      - app-network
-#networks:
-#  app-network:
-#    driver: bridge
-#volumes:
-#  db:
-#    driver: local
-#  airflow-db:
-#    driver: local
-version: '3.8'
-
-services:
-  get_url:
-    image: python:3.11.6
-    ports:
-      - '5623:5623'
-    volumes:
-      - ./src/get_url:/var/project/get_url
-    depends_on:
-      - db
-    command: >
-      bash -c "set -x &&
-      cd /var/project/get_url &&
-      python -m venv venv &&
-      source venv/bin/activate &&
-      pip install poetry &&
-      poetry install --no-root &&
-      poetry update"
-    working_dir: /var/project/get_url
-    environment:
-      - URL=https://randomuser.me/api/?results=
-      - USER_KAFKA=aGFybWxlc3MtbGxhbWEtMTA5NTUkSWlsftAT5bb2G5AxTAXsG48EcNi8Pk20sDU
-      - PASSWORD_KAFKA=YzI5N2JhYzQtZGJjMi00YjJmLThjOTQtMTEwNzhiZjQ3MmNm
-      - TOPIC=test_msg
-      - PYTHONPATH=/var/project/get_url
+#      - PYTHONPATH=/var/project/get_url
     networks:
       - app-network
   db:
@@ -186,33 +30,20 @@ services:
       - app-network
 
   db_project:
-    image: python:3.11.6
+    image: db_source_image:1.0.0
     depends_on:
       - db
     ports:
       - '5624:5624'
-    volumes:
-      - ./src/db_source:/var/project/db_source
-    command: >
-      bash -c "set -x &&
-      cd /var/project/db_source &&
-      python -m venv venv &&
-      . venv/bin/activate &&
-      pip install poetry &&
-      poetry install --no-root &&
-      poetry update &&
-      poetry add confluent_kafka &&
-      poetry update"
-    working_dir: /var/project/db_source
-    environment:
-      - HOST=db
-      - DB=de_projects
-      - USER=admin
-      - PASSWORD=password
-      - PORT=5432
-      - USER_KAFKA=aGFybWxlc3MtbGxhbWEtMTA5NTUkSWlsftAT5bb2G5AxTAXsG48EcNi8Pk20sDU
-      - PASSWORD_KAFKA=YzI5N2JhYzQtZGJjMi00YjJmLThjOTQtMTEwNzhiZjQ3MmNm
-      - TOPIC=test_msg
+#    environment:
+#      - HOST=db
+#      - DB=de_projects
+#      - USER=admin
+#      - PASSWORD=password
+#      - PORT=5432
+#      - USER_KAFKA=aGFybWxlc3MtbGxhbWEtMTA5NTUkSWlsftAT5bb2G5AxTAXsG48EcNi8Pk20sDU
+#      - PASSWORD_KAFKA=YzI5N2JhYzQtZGJjMi00YjJmLThjOTQtMTEwNzhiZjQ3MmNm
+#      - TOPIC=test_msg
     networks:
       - app-network
 
