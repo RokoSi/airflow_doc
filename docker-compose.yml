@@ -1,22 +1,10 @@
 version: '4'
 
 services:
-  get_url:
-    image: get_url_image:1.0.0
-    ports:
-      - '5623:5623'
-    depends_on:
-      - db
-#    environment:
-#      - URL=https://randomuser.me/api/?results=
-#      - USER_KAFKA=aGFybWxlc3MtbGxhbWEtMTA5NTUkSWlsftAT5bb2G5AxTAXsG48EcNi8Pk20sDU
-#      - PASSWORD_KAFKA=YzI5N2JhYzQtZGJjMi00YjJmLThjOTQtMTEwNzhiZjQ3MmNm
-#      - TOPIC=test_msg
-#      - PYTHONPATH=/var/project/get_url
-    networks:
-      - app-network
+
   db:
     image: postgres:16
+
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
@@ -29,23 +17,7 @@ services:
     networks:
       - app-network
 
-  db_project:
-    image: db_source_image:1.0.0
-    depends_on:
-      - db
-    ports:
-      - '5624:5624'
-#    environment:
-#      - HOST=db
-#      - DB=de_projects
-#      - USER=admin
-#      - PASSWORD=password
-#      - PORT=5432
-#      - USER_KAFKA=aGFybWxlc3MtbGxhbWEtMTA5NTUkSWlsftAT5bb2G5AxTAXsG48EcNi8Pk20sDU
-#      - PASSWORD_KAFKA=YzI5N2JhYzQtZGJjMi00YjJmLThjOTQtMTEwNzhiZjQ3MmNm
-#      - TOPIC=test_msg
-    networks:
-      - app-network
+
 
   postgres_airf:
     image: postgres:13
@@ -93,9 +65,6 @@ services:
 
   scheduler:
     image: apache/airflow:2.5.1
-    depends_on:
-      - db_project
-      - get_url
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airf/airflow
